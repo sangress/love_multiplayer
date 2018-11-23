@@ -16,6 +16,7 @@ You can open as many clients as you want on the same machine (for testing and st
 - [server] Make port configurable
 - [client] Add support for projectiles
 - [client] fix bug with player duplicated on screen when going in diagonal direction
+- [client] add settings
 
 
 ~
