@@ -1,5 +1,5 @@
 # love_multiplayer
-A multiplayer ready game made with LÖVE :sparkling_heart:
+A multiplayer ready game made with LÖVE :sparkling_heart: ~
 If you don't know what LÖVE is, then you must give it a try:
 https://love2d.org/
 
