@@ -39,3 +39,7 @@ end
 function love.mousereleased(x, y, button, istouch, presses)
     guiManager:onClick(x, y, button, istouch, presses)
 end
+
+function love.mousepressed(x, y, button)
+    gGameManager:mousepressed(x, y, button)
+end

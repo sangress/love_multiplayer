@@ -2,7 +2,7 @@ require 'utils/table-utils'
 local json = require 'utils/json'
 local enet = require "enet"
 local players = {}
-local MAX_CHANNEL_PLAYERS = 2
+local MAX_CHANNEL_PLAYERS = 50
 
 function love.load()
     host = enet.host_create("localhost:6789")    
@@ -17,7 +17,6 @@ function love.update(dt)
             if event.data ~= nil then
                 local data = json.decode(event.data)        
                 if data.type == 'disconnect' then
-                    print('i disconnect')
                     return
                 end        
                 -- TODO: make it better

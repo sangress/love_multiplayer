@@ -15,6 +15,7 @@ renderer = Renderer:create()
 gWidth = love.graphics.getWidth()
 gHeight = love.graphics.getHeight()
 
+-- TODO: local player = {} or module
 -- locals
 local x = 64
 local y = 64
@@ -25,6 +26,9 @@ local isCom = false
 local channel = 0
 local isMapSet = false
 local state = GAME_STATE.MENU
+local projectiles = {}
+local projectileSpeed = 250
+local MAX_PROJECTILES = 50
 
 function setState(newState)
     state = newState
@@ -60,7 +64,7 @@ function GameManager:update(dt)
         if (isConnected and isCom ~= true) then
             -- print('init new player')
             pid = math.random(9999)
-            host:broadcast(json.encode({x = x + (speed * dt), y = y, pid = pid}))
+            host:broadcast(json.encode({x = x, y = y, pid = pid, projectiles = projectiles}))
             isCom = true
             setState(GAME_STATE.PLAY)
         end
@@ -81,7 +85,7 @@ function GameManager:update(dt)
         end
         
         if playerX ~= x or playerY ~= y then
-            host:broadcast(json.encode({x = playerX, y = playerY, pid = pid, channel = channel}))
+            host:broadcast(json.encode({x = playerX, y = playerY, pid = pid, channel = channel, projectiles = projectiles}))
         end
 
         if event then            
@@ -90,7 +94,6 @@ function GameManager:update(dt)
                 print("Got message: ", event.channel, event.peer)
                 if event.data ~= nil then
                     local data = json.decode(event.data)
-                    print(data.isNew, data.pid == pid)
                     if data.isNew and data.pid == pid then
                         channel = data.channel
                     end
@@ -111,7 +114,16 @@ function GameManager:update(dt)
                 host:broadcast(pid)                
             end
             event = host:service()
-        end        
+        end
+        -- TODO: function updateBullets
+        for i,v in ipairs(projectiles) do
+            v.x = v.x + (v.dx * dt)
+            v.y = v.y + (v.dy * dt)
+        end      
+        
+        if #projectiles > MAX_PROJECTILES then
+            projectiles = {}
+        end
     end
 end
 
@@ -120,7 +132,7 @@ function GameManager:draw()
         guiManager:draw()
     end
     if state == GAME_STATE.PLAY then
-        camera:set()    
+        -- camera:set()    
         renderer:draw()
         -- TODO: move to function
         for i = 1, #players do
@@ -130,10 +142,13 @@ function GameManager:draw()
                 y = player.y
                 camera:gotoPoint({x = x, y = y})
             end
-            love.graphics.circle('fill', player.x, player.y, 16, 8)    
-            
+            love.graphics.circle('fill', player.x, player.y, 16, 16)    
+            -- TODO: optimize nearby
+            for i, v in ipairs(projectiles) do
+                love.graphics.circle("fill", v.x, v.y, 3)    
+            end
         end
-        camera:unset()
+        -- camera:unset()
     end
     
     
@@ -149,6 +164,20 @@ function love.keypressed(key)
     if key == "escape" then
         -- love.event.push("quit")
         setState(GAME_STATE.MENU)
+    end
+end
+
+function GameManager:mousepressed(mouseX, mouseY, button)
+    if button == 1 and self.getState() == GAME_STATE.PLAY then
+        -- local startX = x + player.width / 2
+        local startX = x + 16 / 2
+		-- local startY = y + player.height / 2
+		local startY = y + 16 / 2 
+		local angle = math.atan2((mouseY - startY), (mouseX - startX))
+
+        -- print('startX', startX, 'startY', startY)
+        table.insert(projectiles, {x = startX, y = startY, dx = projectileSpeed * math.cos(angle), dy = projectileSpeed * math.sin(angle)})        
+        host:broadcast(json.encode({x = playerX, y = playerY, pid = pid, channel = channel, projectiles = projectiles}))
     end
 end
 

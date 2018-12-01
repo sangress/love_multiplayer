@@ -1,3 +1,5 @@
+require 'game-state'
+
 local GUIManager = {}
 
 local draw = love.graphics.draw
@@ -38,10 +40,10 @@ end
 
 
 function GUIManager:onClick(x, y, button, istouch, presses)
-    if _isOnTarget(x, y, playBtn) then
+    if _isOnTarget(x, y, playBtn) and gGameManager.getState() == GAME_STATE.MENU then
         gGameManager:loadGame()
     end
-    if _isOnTarget(x, y, exitBtn) then
+    if _isOnTarget(x, y, exitBtn) and gGameManager.getState() == GAME_STATE.MENU then
         gGameManager:exit()
     end
 end
