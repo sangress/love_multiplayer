@@ -17,10 +17,10 @@ local Camera = {
 }
 
 function Camera:set() 
-    push()
-    translate(-self.pos.x, -self.pos.y)
+    push()    
     rotate(-self.rot)
     scale(1 / self.scale.x, 1 / self.scale.y)
+    translate(-self.pos.x, -self.pos.y)
 end
 function Camera:unset() 
     pop()
@@ -32,9 +32,11 @@ function Camera:setScale(x, y)
 end
 
 -- TODO: no global width (take from config?)
-function Camera:gotoPoint(pos)
-    self.pos.x = pos.x - (gWidth / 2) -- * self.scale.x
-    self.pos.y = pos.y - (gHeight / 2) -- * self.scale.y
+function Camera:move(pos, dx, dy)
+    -- self.pos.x = pos.x - (gWidth / 2) -- * self.scale.x
+    -- self.pos.y = pos.y - (gHeight / 2) -- * self.scale.y
+    self.pos.x = pos.x - (gWidth / 2)
+    self.pos.y = pos.y - (gHeight / 2)
 end
 
 return Camera
